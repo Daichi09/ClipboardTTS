@@ -1,6 +1,6 @@
 ﻿# ClipboardTTS
 
-Send the text in your Clipboard to Microsoft's Text-to-Speech Engine. Useful for Visual Novel Text Hookers that send foriegn game text to the clipboard. Can be easily launched via an AutoHotkey script.
+Send the text in your Clipboard to Microsoft's Text-to-Speech Engine. Useful for Visual Novel Text Hookers that send foreign game text to the clipboard. Can be easily launched via an AutoHotkey script.
 
 ## Getting Started
 
