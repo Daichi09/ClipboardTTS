@@ -260,3 +260,6 @@ paket-files/
 __pycache__/
 *.pyc
 /ClipboardTTS.7z
+*.7z
+/ClipboardTTS/ClipboardTTS.settings
+/ClipboardTTS/ClipboardTTSHotkey.exe

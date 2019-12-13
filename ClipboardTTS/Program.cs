@@ -17,7 +17,12 @@ namespace ClipboardTTS
             public static int Volume = 100;    // 0...100
             public static int Rate = 0;        // -10...10
             public static int CharLimit = 1000;
+            public static bool RemoveLineReturns = true;
             public static Dictionary<string, string> Substitutions = new Dictionary<string, string>();
+
+            public static string WavePrefix = "Audio_TTS ";
+            public static bool WaveOutput = false;
+            public static string WaveFile = null;
         }
 
         enum ParseMode
@@ -33,6 +38,29 @@ namespace ClipboardTTS
 
             if (cliptext.Length == 0)
                 return;
+
+            // Very simple arg parsing
+            for (int i = 0; i < args.Count(); i++)
+            {
+                var split = args[i].Split(':');
+                switch (split[0])
+                {
+                    case "-w":
+                    {
+                        Settings.WaveOutput = true;
+                        if (split.Count() == 1)
+                        {
+                            Settings.WaveFile = Settings.WavePrefix + DateTime.Now.ToString("yyyy-MM-dd_HHmm") + ".wav";
+                        }
+                        else if (split.Count() > 1)
+                            Settings.WaveFile = split[1];
+                        Settings.CharLimit = 0;
+                    }
+                    break;
+                    default:
+                        break;
+                }
+            }
 
             using (SpeechSynthesizer synth = new SpeechSynthesizer())
             {
@@ -58,6 +86,14 @@ namespace ClipboardTTS
                         sw.WriteLine();
                         sw.WriteLine(";Max Character Limit (0 = Unlimited)");
                         sw.WriteLine("CharLimit = 1000");
+                        sw.WriteLine();
+                        sw.WriteLine(";Remove unwanted pause from Line Returns");
+                        sw.WriteLine("RemoveLineReturns = \"true\"");
+                        sw.WriteLine();
+                        sw.WriteLine(";Run the program with the \"-w\" parameter to output the audio to a wave file,");
+                        sw.WriteLine(";with WavePrefix and the date as the filename.");
+                        sw.WriteLine(";You can also specify a specific filename with \"-w:filename.wav\"");
+                        sw.WriteLine("WavePrefix = \"Audio_TTS \"");
                         sw.WriteLine();
                         sw.WriteLine("[Substitutions]");
                         sw.WriteLine(";OriginalWord => ReplacementWord");
@@ -99,7 +135,12 @@ namespace ClipboardTTS
                                     case "CharLimit":
                                         Settings.CharLimit = int.Parse(split[1]);
                                         break;
-
+                                    case "WavePrefix":
+                                        Settings.WavePrefix = split[1].Trim('"');
+                                        break;
+                                    case "RemoveLineReturns":
+                                        Settings.RemoveLineReturns = bool.Parse(split[1].Trim('"'));
+                                        break;
                                     default:
                                         break;
                                 }
@@ -124,11 +165,22 @@ namespace ClipboardTTS
                 if (Settings.CharLimit != 0 && cliptext.Length > Settings.CharLimit)
                     cliptext = cliptext.Substring(0, Settings.CharLimit);
 
+                if (Settings.RemoveLineReturns)
+                {
+                    cliptext = cliptext.Replace("\r\n", " ").Trim();
+                    cliptext = cliptext.Replace("\n", " ").Trim();
+                    cliptext = cliptext.Replace("\r", " ").Trim();
+                }
+
                 // Playback
                 if (Settings.Voice != null)
                     synth.SelectVoice(Settings.Voice);
                 synth.Volume = Settings.Volume;
                 synth.Rate = Settings.Rate;
+
+                if (Settings.WaveOutput)
+                    synth.SetOutputToWaveFile(Settings.WaveFile);
+
                 synth.Speak(cliptext);
             } //end using SpeechSynthesizer
         }
