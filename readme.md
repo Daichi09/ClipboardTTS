@@ -33,3 +33,16 @@ The **Substitutions** section allows you to replace words before they are proces
 
     [Substitutions]
     OriginalWord => ReplacementWord
+
+
+If the speach engine detects extra line returns, it will add a pause to the spoken dialog, this **RemoveLineReturns** setting will remove the extra pause.
+
+	;Remove unwanted pause from Line Returns
+	RemoveLineReturns = "true"
+
+**WavePrefix* setting will set the prefix for output to wav files
+	WavePrefix = "Audio_TTS "
+
+## Command line parameters
+Output to Wave file:
+	-w or -w:filename.wav
